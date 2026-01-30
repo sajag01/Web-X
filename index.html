@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEvents – AI Event Discovery</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
+<style>
+/* ---------- Global Variables ---------- */
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --dark-bg: #f8fafc;
+  --light-bg: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --text-dark: #2d3748;
+  --text-light: #4a5568;
+  --text-lighter: #718096;
+  --border-color: #e2e8f0;
+  --shadow-light: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 20px 40px rgba(0, 0, 0, 0.1);
+  --shadow-heavy: 0 30px 60px rgba(0, 0, 0, 0.15);
+  --primary-light: rgba(102, 126, 234, 0.1);
+  --secondary-light: rgba(240, 147, 251, 0.1);
+  --success-light: rgba(79, 172, 254, 0.1);
+  --accent-purple: #9f7aea;
+  --accent-pink: #ed64a6;
+  --accent-teal: #38b2ac;
+  --accent-orange: #ed8936;
+}
+
+/* ---------- Global Reset ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ---------- Custom Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+/* ---------- Login Page ---------- */
+.login-container {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.login-left {
+  flex: 1;
+  background: var(--primary-gradient);
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-left::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: float 20s linear infinite;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-50px, -50px) rotate(360deg); }
+}
+
+.login-left h1 {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+}
+
+.login-left p {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  max-width: 500px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+  margin-top: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-item {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.feature-item i {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #fff, #e2e8f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.login-right {
+  flex: 1;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--light-bg);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-header h2 {
+  font-size: 2.2rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+.login-tabs {
+  display: flex;
+  margin-bottom: 40px;
+  background: var(--light-bg);
+  border-radius: 15px;
+  padding: 5px;
+  box-shadow: var(--shadow-light);
+}
+
+.login-tab {
+  flex: 1;
+  padding: 18px 30px;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.login-tab.active {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.login-form {
+  display: none;
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-form.active {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon i {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent-purple);
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 16px 16px 16px 50px;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  background: var(--light-bg);
+  color: var(--text-dark);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-with-icon input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-light);
+}
+
+.forgot-password {
+  color: var(--accent-purple);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+  color: var(--accent-pink);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 18px;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+.divider {
+  text-align: center;
+  margin: 30px 0;
+  position: relative;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.divider span {
+  background: var(--light-bg);
+  padding: 0 20px;
+  position: relative;
+  color: var(--text-lighter);
+  font-size: 0.9rem;
+}
+
+.social-login {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.social-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  background: var(--light-bg);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.social-btn:hover {
+  border-color: var(--accent-purple);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
+}
+
+.register-link {
+  text-align: center;
+  color: var(--text-light);
+}
+
+.register-link a {
+  color: var(--accent-purple);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+  color: var(--accent-pink);
+}
+
+/* ---------- Main Application ---------- */
+#mainApp {
+  display: none;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 8%;
+  background: var(--light-bg);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-left: auto;
+  margin-right: 40px;
+}
+
+.nav-links a {
+  color: var(--text-dark);
+  text-decoration: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: white;
+  background: var(--primary-gradient);
+  box-shadow: var(--shadow-light);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--light-bg);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid var(--border-color);
+}
+
+.user-profile:hover {
+  border-color: var(--accent-purple);
+  box-shadow: var(--shadow-light);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  font-size: 1.1rem;
+}
+
+/* ---------- Search Bar ---------- */
+.search-section {
+  padding: 40px 8% 30px;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+}
+
+.search-container {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 20px 30px 20px 60px;
+  border-radius: 20px;
+  border: 2px solid var(--border-color);
+  background: var(--light-bg);
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.search-bar:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 4px rgba(159, 122, 234, 0.15);
+}
+
+.search-bar::placeholder {
+  color: var(--text-lighter);
+}
+
+.search-icon {
+  position: absolute;
+  left: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent-purple);
+  font-size: 1.2rem;
+}
+
+/* ---------- Hero Section ---------- */
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 8% 100px;
+  gap: 60px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(102,126,234,0.03)"/></svg>');
+  background-size: cover;
+}
+
+.hero-text {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-text h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 25px;
+  background: linear-gradient(135deg, #2d3748 0%, #667eea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin-bottom: 35px;
+  line-height: 1.7;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 50px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat .number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: block;
+  line-height: 1;
+}
+
+.stat .label {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin-top: 8px;
+}
+
+/* ---------- AI Recommendation Card ---------- */
+.ai-card {
+  background: var(--card-bg);
+  padding: 35px;
+  width: 420px;
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-heavy);
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(10px);
+}
+
+.ai-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+  border-radius: 27px;
+  z-index: -1;
+  opacity: 0.3;
+}
+
+.ai-card h3 {
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  color: var(--text-dark);
+}
+
+.ai-card h3 i {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  background: var(--light-bg);
+  color: var(--text-dark);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
+}
+
+.interests {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 25px 0;
+}
+
+.interest-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  background: var(--light-bg);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid var(--border-color);
+}
+
+.interest-check:hover {
+  border-color: var(--accent-purple);
+  transform: translateY(-2px);
+}
+
+.interest-check input {
+  margin: 0;
+  accent-color: var(--accent-purple);
+}
+
+.ai-loading {
+  display: none;
+  text-align: center;
+  margin: 25px 0;
+  padding: 20px;
+  background: var(--primary-light);
+  border-radius: 15px;
+}
+
+.ai-loading i {
+  font-size: 2rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  padding: 14px 28px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-medium);
+}
+
+.btn-secondary {
+  background: var(--secondary-gradient);
+  color: white;
+}
+
+.btn-light {
+  background: var(--light-bg);
+  color: var(--text-dark);
+  border: 2px solid var(--border-color);
+}
+
+.btn-light:hover {
+  border-color: var(--accent-purple);
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: var(--success-gradient);
+  color: white;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* ---------- Events Section ---------- */
+.events {
+  padding: 80px 8%;
+  background: var(--light-bg);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.section-header h2 i {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.event-card {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 20px;
+  transition: all 0.4s ease;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.event-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-gradient);
+}
+
+.event-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-heavy);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.badge {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.badge-free {
+  background: var(--success-gradient);
+}
+
+.badge-paid {
+  background: var(--secondary-gradient);
+}
+
+.event-category {
+  display: inline-block;
+  padding: 8px 18px;
+  background: var(--primary-light);
+  color: var(--accent-purple);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.event-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+
+.event-card p {
+  color: var(--text-light);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.event-card .seats {
+  margin: 20px 0;
+  padding: 15px;
+  background: var(--light-bg);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid var(--border-color);
+}
+
+.event-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.event-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ---------- Organizer Dashboard ---------- */
+.dashboard {
+  padding: 60px 8%;
+  background: var(--light-bg);
+  min-height: calc(100vh - 80px);
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+.dashboard-header h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-bottom: 50px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-heavy);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-gradient);
+}
+
+.stat-card h4 {
+  color: var(--text-light);
+  margin-bottom: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.stat-card .value {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.trend.positive {
+  color: #38a169;
+}
+
+.trend.negative {
+  color: #e53e3e;
+}
+
+/* Charts Section */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.chart-card {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.chart-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 25px;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chart-container {
+  height: 300px;
+  position: relative;
+  margin-top: 20px;
+}
+
+/* Beautiful Charts */
+.chart-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  height: 250px;
+  padding: 20px 0;
+}
+
+.bar-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar {
+  width: 40px;
+  background: var(--primary-gradient);
+  border-radius: 8px 8px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.bar:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.bar-label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.bar-value {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Pie Chart */
+.pie-chart {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #667eea 0% 25%,
+    #9f7aea 25% 50%,
+    #ed64a6 50% 75%,
+    #38b2ac 75% 100%
+  );
+  margin: 0 auto;
+  position: relative;
+}
+
+.pie-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: var(--shadow-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.pie-center .value {
+  font-size: 2rem;
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Recent Events Table */
+.recent-events {
+  background: var(--card-bg);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-light);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  padding: 25px;
+  background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+  font-weight: 600;
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  padding: 20px 25px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.3s ease;
+}
+
+.table-row:hover {
+  background: var(--primary-light);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-active {
+  background: rgba(72, 187, 120, 0.1);
+  color: #38a169;
+}
+
+.status-pending {
+  background: rgba(237, 137, 54, 0.1);
+  color: #dd6b20;
+}
+
+.status-ended {
+  background: rgba(245, 101, 101, 0.1);
+  color: #e53e3e;
+}
+
+/* ---------- Modals ---------- */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--light-bg);
+  width: 90%;
+  max-width: 600px;
+  border-radius: 25px;
+  padding: 40px;
+  box-shadow: var(--shadow-heavy);
+  animation: slideUp 0.4s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.close-modal:hover {
+  background: var(--primary-light);
+  color: var(--accent-purple);
+}
+
+/* ---------- Notifications ---------- */
+.notification {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  padding: 20px 25px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: var(--shadow-heavy);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 3000;
+  animation: slideInRight 0.3s ease;
+  border-left: 4px solid var(--accent-purple);
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.notification.hide {
+  animation: slideOutRight 0.3s ease;
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+.notification i {
+  font-size: 1.5rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---------- Responsive Design ---------- */
+@media (max-width: 1200px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 60px 8%;
+  }
+  
+  .ai-card {
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .hero-stats {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+  }
+  
+  .login-left, .login-right {
+    padding: 40px 30px;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .navbar {
+    padding: 15px 5%;
+  }
+  
+  .nav-links {
+    display: none;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .event-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-header, .table-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-text h1 {
+    font-size: 2.5rem;
+  }
+  
+  .stat .number {
+    font-size: 2rem;
+  }
+  
+  .ai-card {
+    padding: 25px;
+  }
+  
+  .interests {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Utility Classes ---------- */
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-4 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+.p-4 { padding: 1rem; }
+
+/* ---------- Loading Animation ---------- */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ---------- Pulse Animation ---------- */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+</style>
+</head>
+
+<body>
+<!-- Login Page -->
+<div id="loginPage" class="login-container">
+  <div class="login-left">
+    <h1><i class="fas fa-graduation-cap"></i> SmartEvents</h1>
+    <p>Discover perfect college events with AI-powered recommendations. Join thousands of students finding their next adventure.</p>
+    
+    <div class="features-grid">
+      <div class="feature-item">
+        <i class="fas fa-robot"></i>
+        <h4>AI-Powered</h4>
+        <p>Smart recommendations</p>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-calendar-star"></i>
+        <h4>Curated Events</h4>
+        <p>Handpicked experiences</p>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-users"></i>
+        <h4>Community</h4>
+        <p>45K+ students</p>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-shield-alt"></i>
+        <h4>Secure</h4>
+        <p>Verified events</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="login-right">
+    <div class="login-header">
+      <h2>Welcome Back</h2>
+      <p>Sign in to continue your journey</p>
+    </div>
+    
+    <div class="login-tabs">
+      <button class="login-tab active" data-tab="user">Student</button>
+      <button class="login-tab" data-tab="organizer">Organizer</button>
+    </div>
+    
+    <!-- Student Login Form -->
+    <form class="login-form active" id="userLoginForm" onsubmit="return loginAsUser(event)">
+      <div class="form-group">
+        <label for="userEmail">Email Address</label>
+        <div class="input-with-icon">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="userEmail" placeholder="student@university.edu" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="userPassword">Password</label>
+        <div class="input-with-icon">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="userPassword" placeholder="Enter your password" required minlength="6">
+        </div>
+      </div>
+      
+      <div class="form-options">
+        <label class="remember">
+          <input type="checkbox"> Remember me
+        </label>
+        <a href="#" class="forgot-password">Forgot Password?</a>
+      </div>
+      
+      <button type="submit" class="login-btn">
+        <i class="fas fa-sign-in-alt"></i> Sign In as Student
+      </button>
+      
+      <div class="divider">
+        <span>Or continue with</span>
+      </div>
+      
+      <div class="social-login">
+        <button type="button" class="social-btn">
+          <i class="fab fa-google"></i> Google
+        </button>
+        <button type="button" class="social-btn">
+          <i class="fab fa-microsoft"></i> Microsoft
+        </button>
+      </div>
+      
+      <p class="register-link">
+        Don't have an account? <a href="#">Sign up here</a>
+      </p>
+    </form>
+    
+    <!-- Organizer Login Form -->
+    <form class="login-form" id="organizerLoginForm" onsubmit="return loginAsOrganizer(event)">
+      <div class="form-group">
+        <label for="organizerEmail">Organization Email</label>
+        <div class="input-with-icon">
+          <i class="fas fa-building"></i>
+          <input type="email" id="organizerEmail" placeholder="org@example.com" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="organizerPassword">Password</label>
+        <div class="input-with-icon">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="organizerPassword" placeholder="Enter your password" required minlength="8">
+        </div>
+      </div>
+      
+      <div class="form-options">
+        <label class="remember">
+          <input type="checkbox"> Remember me
+        </label>
+        <a href="#" class="forgot-password">Forgot Password?</a>
+      </div>
+      
+      <button type="submit" class="login-btn">
+        <i class="fas fa-sign-in-alt"></i> Sign In as Organizer
+      </button>
+      
+      <div class="divider">
+        <span>Organization access</span>
+      </div>
+      
+      <div class="social-login">
+        <button type="button" class="social-btn">
+          <i class="fas fa-id-card"></i> Organization SSO
+        </button>
+      </div>
+      
+      <p class="register-link">
+        Want to host events? <a href="#">Apply as organizer</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- Main Application -->
+<div id="mainApp">
+  <!-- User Interface -->
+  <div id="userInterface">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        SmartEvents
+      </div>
+      
+      <div class="nav-links">
+        <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+        <a href="#"><i class="fas fa-compass"></i> Explore</a>
+        <a href="#"><i class="fas fa-calendar-alt"></i> My Events</a>
+        <a href="#"><i class="fas fa-bell"></i> Notifications</a>
+      </div>
+      
+      <div class="user-profile" onclick="toggleUserMenu()">
+        <div class="avatar" id="userAvatar">S</div>
+        <span id="userName">Student</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </nav>
+    
+    <!-- Search Bar -->
+    <section class="search-section">
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="search" class="search-bar" id="searchInput" placeholder="Search events, workshops, hackathons...">
+      </div>
+    </section>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Discover Events Made Just for You</h1>
+        <p>Our AI-powered platform analyzes your interests and schedule to recommend perfect college events. Join the community of students discovering amazing experiences.</p>
+        <button class="btn btn-primary" onclick="getAIRecommendations()">
+          <i class="fas fa-magic"></i> Get AI Recommendations
+        </button>
+        
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="number">1,250+</span>
+            <span class="label">Events Listed</span>
+          </div>
+          <div class="stat">
+            <span class="number">45K+</span>
+            <span class="label">Students Joined</span>
+          </div>
+          <div class="stat">
+            <span class="number">98%</span>
+            <span class="label">Satisfaction Rate</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- AI Recommendation Card -->
+      <div class="ai-card">
+        <h3><i class="fas fa-robot"></i> AI Recommendations</h3>
+        
+        <div class="filter-group">
+          <label for="userYear">Academic Year</label>
+          <select id="userYear">
+            <option value="">Select Year</option>
+            <option>Freshman</option>
+            <option>Sophomore</option>
+            <option>Junior</option>
+            <option>Senior</option>
+            <option>Graduate</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="userMajor">Field of Study</label>
+          <select id="userMajor">
+            <option value="">Select Major</option>
+            <option>Computer Science</option>
+            <option>Business</option>
+            <option>Engineering</option>
+            <option>Arts & Humanities</option>
+            <option>Science</option>
+            <option>Other</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Your Interests</label>
+          <div class="interests">
+            <label class="interest-check">
+              <input type="checkbox" value="tech"> Tech & Coding
+            </label>
+            <label class="interest-check">
+              <input type="checkbox" value="music"> Music & Arts
+            </label>
+            <label class="interest-check">
+              <input type="checkbox" value="sports"> Sports & Fitness
+            </label>
+            <label class="interest-check">
+              <input type="checkbox" value="network"> Networking
+            </label>
+          </div>
+        </div>
+        
+        <div class="ai-loading" id="aiLoading">
+          <i class="fas fa-spinner"></i>
+          <p>Analyzing your profile...</p>
+        </div>
+        
+        <button class="btn btn-primary btn-full" onclick="getAIRecommendations()">
+          <i class="fas fa-magic"></i> Get Personalized Recommendations
+        </button>
+      </div>
+    </section>
+    
+    <!-- Events Section -->
+    <section class="events">
+      <div class="section-header">
+        <h2><i class="fas fa-calendar-star"></i> Upcoming Events</h2>
+        <select id="eventFilter" class="btn-light">
+          <option value="all">All Events</option>
+          <option value="free">Free Events</option>
+          <option value="tech">Tech Events</option>
+          <option value="music">Music Events</option>
+          <option value="sports">Sports Events</option>
+        </select>
+      </div>
+      
+      <div class="event-grid" id="eventGrid">
+        <!-- Events will be loaded here -->
+      </div>
+    </section>
+  </div>
+  
+  <!-- Organizer Interface -->
+  <div id="organizerInterface" class="hidden">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        SmartEvents Organizer
+      </div>
+      
+      <div class="nav-links">
+        <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="#"><i class="fas fa-calendar-plus"></i> My Events</a>
+        <a href="#"><i class="fas fa-chart-bar"></i> Analytics</a>
+        <a href="#"><i class="fas fa-users"></i> Participants</a>
+      </div>
+      
+      <div class="user-profile" onclick="toggleOrganizerMenu()">
+        <div class="avatar">O</div>
+        <span id="organizerName">Organizer</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </nav>
+    
+    <!-- Dashboard -->
+    <section class="dashboard">
+      <div class="dashboard-header">
+        <h1>Organizer Dashboard</h1>
+        <button class="btn btn-primary" onclick="showAddEventModal()">
+          <i class="fas fa-plus"></i> Create Event
+        </button>
+      </div>
+      
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h4>Total Events</h4>
+          <div class="value">12</div>
+          <div class="trend positive">
+            <i class="fas fa-arrow-up"></i> 3 this month
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <h4>Total Participants</h4>
+          <div class="value">1,245</div>
+          <div class="trend positive">
+            <i class="fas fa-arrow-up"></i> 15% growth
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <h4>Revenue</h4>
+          <div class="value">₹24,580</div>
+          <div class="trend positive">
+            <i class="fas fa-arrow-up"></i> ₹3,200 this month
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <h4>Avg. Rating</h4>
+          <div class="value">4.8</div>
+          <div class="trend positive">
+            <i class="fas fa-star"></i> 98% satisfaction
+          </div>
+        </div>
+      </div>
+      
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-line"></i> Registration Trends</h3>
+          <div class="chart-container">
+            <div class="chart-bar">
+              <div class="bar-container">
+                <div class="bar" style="height: 80%">
+                  <span class="bar-value">240</span>
+                </div>
+                <span class="bar-label">Jan</span>
+              </div>
+              <div class="bar-container">
+                <div class="bar" style="height: 65%">
+                  <span class="bar-value">195</span>
+                </div>
+                <span class="bar-label">Feb</span>
+              </div>
+              <div class="bar-container">
+                <div class="bar" style="height: 90%">
+                  <span class="bar-value">270</span>
+                </div>
+                <span class="bar-label">Mar</span>
+              </div>
+              <div class="bar-container">
+                <div class="bar" style="height: 75%">
+                  <span class="bar-value">225</span>
+                </div>
+                <span class="bar-label">Apr</span>
+              </div>
+              <div class="bar-container">
+                <div class="bar" style="height: 95%">
+                  <span class="bar-value">285</span>
+                </div>
+                <span class="bar-label">May</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-pie"></i> Event Categories</h3>
+          <div class="chart-container">
+            <div class="pie-chart">
+              <div class="pie-center">
+                <span class="value">12</span>
+                <span>Total Events</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Events -->
+      <div class="section-header">
+        <h3><i class="fas fa-history"></i> Recent Events</h3>
+        <button class="btn btn-light">
+          <i class="fas fa-download"></i> Export
+        </button>
+      </div>
+      
+      <div class="recent-events">
+        <div class="table-header">
+          <div>Event Name</div>
+          <div>Date</div>
+          <div>Participants</div>
+          <div>Revenue</div>
+          <div>Status</div>
+          <div>Actions</div>
+        </div>
+        
+        <div class="table-row">
+          <div>Tech Innovators Hackathon</div>
+          <div>Apr 15, 2024</div>
+          <div>240</div>
+          <div>₹71,760</div>
+          <div><span class="status-badge status-active">Active</span></div>
+          <div>
+            <button class="btn btn-light"><i class="fas fa-edit"></i></button>
+          </div>
+        </div>
+        
+        <div class="table-row">
+          <div>Career Networking Night</div>
+          <div>Apr 18, 2024</div>
+          <div>38</div>
+          <div>₹7,562</div>
+          <div><span class="status-badge status-active">Active</span></div>
+          <div>
+            <button class="btn btn-light"><i class="fas fa-edit"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal" id="addEventModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-plus-circle"></i> Create New Event</h3>
+      <button class="close-modal" onclick="closeModal()">&times;</button>
+    </div>
+    
+    <form id="eventForm" onsubmit="return handleEventSubmit(event)">
+      <div class="form-group">
+        <label for="eventName">Event Name *</label>
+        <input type="text" id="eventName" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="eventCategory">Category *</label>
+        <select id="eventCategory" required>
+          <option value="">Select Category</option>
+          <option value="tech">Tech & Coding</option>
+          <option value="music">Music & Arts</option>
+          <option value="sports">Sports & Fitness</option>
+          <option value="network">Networking</option>
+        </select>
+      </div>
+      
+      <button type="submit" class="btn btn-primary btn-full">
+        <i class="fas fa-paper-plane"></i> Create Event
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Secure Data Storage
+const eventData = [
+  {
+    id: 1,
+    name: "Tech Innovators Hackathon",
+    date: "2024-04-15",
+    time: "10:00",
+    category: "tech",
+    price: 299,
+    seats: 40,
+    seatsLeft: 40,
+    location: "CS Building",
+    organizer: "CS Department",
+    description: "24-hour hackathon for tech solutions",
+    type: "paid"
+  },
+  {
+    id: 2,
+    name: "Outdoor Music Festival",
+    date: "2024-04-20",
+    time: "16:00",
+    category: "music",
+    price: 0,
+    seats: 85,
+    seatsLeft: 85,
+    location: "University Grounds",
+    organizer: "Music Club",
+    description: "Annual music festival",
+    type: "free"
+  }
+];
+
+// Secure User Data
+let currentUser = null;
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+// DOM Ready
+document.addEventListener('DOMContentLoaded', function() {
+  initLoginTabs();
+  initEventListeners();
+  
+  // Check for existing session
+  const savedSession = localStorage.getItem('smartEventsSession');
+  if (savedSession) {
+    const session = JSON.parse(savedSession);
+    if (Date.now() - session.timestamp < SESSION_TIMEOUT) {
+      loadSession(session);
+    } else {
+      localStorage.removeItem('smartEventsSession');
+    }
+  }
+});
+
+// Initialize Login Tabs
+function initLoginTabs() {
+  document.querySelectorAll('.login-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const tabId = this.dataset.tab;
+      
+      // Update active tab
+      document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Show corresponding form
+      document.querySelectorAll('.login-form').forEach(form => form.classList.remove('active'));
+      document.getElementById(`${tabId}LoginForm`).classList.add('active');
+    });
+  });
+}
+
+// Initialize Event Listeners
+function initEventListeners() {
+  // Search functionality
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce(performSearch, 300));
+  }
+  
+  // Event filter
+  const eventFilter = document.getElementById('eventFilter');
+  if (eventFilter) {
+    eventFilter.addEventListener('change', filterEvents);
+  }
+  
+  // Modal close on outside click
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+      closeModal();
+    }
+  });
+}
+
+// Debounce function for performance
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Secure Login Functions
+function loginAsUser(event) {
+  event.preventDefault();
+  
+  const email = document.getElementById('userEmail').value.trim();
+  const password = document.getElementById('userPassword').value;
+  
+  if (!validateEmail(email)) {
+    showNotification('Please enter a valid email address', 'error');
+    return false;
+  }
+  
+  if (password.length < 6) {
+    showNotification('Password must be at least 6 characters', 'error');
+    return false;
+  }
+  
+  // Simulate API call
+  showNotification('Signing in...', 'info');
+  
+  setTimeout(() => {
+    currentUser = {
+      name: "Student User",
+      email: sanitizeInput(email),
+      role: "user",
+      avatar: "S"
+    };
+    
+    saveSession(currentUser);
+    switchToInterface('user');
+    renderEvents();
+    
+    showNotification('Welcome back!', 'success');
+  }, 1000);
+  
+  return false;
+}
+
+function loginAsOrganizer(event) {
+  event.preventDefault();
+  
+  const email = document.getElementById('organizerEmail').value.trim();
+  const password = document.getElementById('organizerPassword').value;
+  
+  if (!validateEmail(email)) {
+    showNotification('Please enter a valid email address', 'error');
+    return false;
+  }
+  
+  if (password.length < 8) {
+    showNotification('Password must be at least 8 characters', 'error');
+    return false;
+  }
+  
+  showNotification('Signing in as organizer...', 'info');
+  
+  setTimeout(() => {
+    currentUser = {
+      name: "Event Organizer",
+      email: sanitizeInput(email),
+      role: "organizer",
+      avatar: "O"
+    };
+    
+    saveSession(currentUser);
+    switchToInterface('organizer');
+    
+    showNotification('Organizer dashboard loaded', 'success');
+  }, 1000);
+  
+  return false;
+}
+
+// Input Validation
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+function sanitizeInput(input) {
+  const div = document.createElement('div');
+  div.textContent = input;
+  return div.innerHTML;
+}
+
+// Session Management
+function saveSession(user) {
+  const session = {
+    user: user,
+    timestamp: Date.now()
+  };
+  localStorage.setItem('smartEventsSession', JSON.stringify(session));
+}
+
+function loadSession(session) {
+  currentUser = session.user;
+  switchToInterface(currentUser.role);
+  if (currentUser.role === 'user') {
+    renderEvents();
+  }
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('smartEventsSession');
+  
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  
+  showNotification('Successfully logged out', 'info');
+}
+
+// Interface Switching
+function switchToInterface(role) {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  
+  if (role === 'user') {
+    document.getElementById('userInterface').classList.remove('hidden');
+    document.getElementById('organizerInterface').classList.add('hidden');
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userAvatar').textContent = currentUser.avatar;
+  } else {
+    document.getElementById('organizerInterface').classList.remove('hidden');
+    document.getElementById('userInterface').classList.add('hidden');
+    document.getElementById('organizerName').textContent = currentUser.name;
+  }
+}
+
+// Event Management
+function renderEvents(eventsToRender = eventData) {
+  const eventGrid = document.getElementById('eventGrid');
+  if (!eventGrid) return;
+  
+  eventGrid.innerHTML = eventsToRender.map(event => `
+    <div class="event-card">
+      <span class="badge ${event.type === 'free' ? 'badge-free' : 'badge-paid'}">
+        ${event.type === 'free' ? 'FREE' : 'PAID'}
+      </span>
+      <span class="event-category">${getCategoryName(event.category)}</span>
+      <h3>${sanitizeInput(event.name)}</h3>
+      <p><i class="far fa-calendar"></i> ${formatDate(event.date)} at ${event.time}</p>
+      <p><i class="fas fa-map-marker-alt"></i> ${sanitizeInput(event.location)}</p>
+      ${event.price > 0 ? `<p><i class="fas fa-rupee-sign"></i> ₹${event.price}</p>` : ''}
+      <div class="seats">
+        <span><i class="fas fa-users"></i> ${event.seatsLeft}/${event.seats} Seats</span>
+        <span><i class="fas fa-user-tie"></i> ${sanitizeInput(event.organizer)}</span>
+      </div>
+      <p>${sanitizeInput(event.description)}</p>
+      <div class="event-actions">
+        <button class="btn btn-light" onclick="viewEventDetails(${event.id})">
+          <i class="fas fa-eye"></i> Details
+        </button>
+        <button class="btn ${event.type === 'free' ? 'btn-success' : 'btn-primary'}" 
+                onclick="registerForEvent(${event.id})">
+          <i class="fas fa-${event.type === 'free' ? 'user-plus' : 'ticket-alt'}"></i>
+          ${event.type === 'free' ? 'Register' : 'Buy Ticket'}
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function getCategoryName(category) {
+  const categories = {
+    tech: 'Tech & Coding',
+    music: 'Music & Arts',
+    sports: 'Sports & Fitness',
+    network: 'Networking'
+  };
+  return categories[category] || category;
+}
+
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}
+
+// Search and Filter
+function performSearch() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  const filtered = eventData.filter(event => 
+    event.name.toLowerCase().includes(query) ||
+    event.description.toLowerCase().includes(query) ||
+    event.category.toLowerCase().includes(query)
+  );
+  
+  renderEvents(filtered);
+  showNotification(`Found ${filtered.length} events`, filtered.length ? 'success' : 'info');
+}
+
+function filterEvents() {
+  const filter = document.getElementById('eventFilter').value;
+  let filtered = eventData;
+  
+  if (filter === 'free') {
+    filtered = eventData.filter(event => event.type === 'free');
+  } else if (filter !== 'all') {
+    filtered = eventData.filter(event => event.category === filter);
+  }
+  
+  renderEvents(filtered);
+}
+
+// AI Recommendations
+function getAIRecommendations() {
+  const year = document.getElementById('userYear').value;
+  const major = document.getElementById('userMajor').value;
+  const interests = Array.from(document.querySelectorAll('.interest-check input:checked'))
+    .map(cb => cb.value);
+  
+  if (interests.length === 0) {
+    showNotification('Please select at least one interest', 'info');
+    return;
+  }
+  
+  const loading = document.getElementById('aiLoading');
+  loading.style.display = 'block';
+  
+  setTimeout(() => {
+    loading.style.display = 'none';
+    
+    // Simple recommendation logic
+    let recommended = eventData.filter(event => 
+      interests.includes(event.category) ||
+      (major === 'Computer Science' && event.category === 'tech') ||
+      (major === 'Business' && event.category === 'network')
+    );
+    
+    if (recommended.length === 0) {
+      recommended = eventData.slice(0, 3);
+    }
+    
+    renderEvents(recommended);
+    showNotification(`Found ${recommended.length} events you might like!`, 'success');
+  }, 1500);
+}
+
+// Event Registration
+function registerForEvent(eventId) {
+  const event = eventData.find(e => e.id === eventId);
+  if (!event) return;
+  
+  if (event.seatsLeft <= 0) {
+    showNotification('Event is fully booked', 'error');
+    return;
+  }
+  
+  showNotification('Processing registration...', 'info');
+  
+  setTimeout(() => {
+    event.seatsLeft--;
+    renderEvents();
+    showNotification(`Successfully registered for ${event.name}!`, 'success');
+  }, 1000);
+}
+
+// Modal Management
+function showAddEventModal() {
+  document.getElementById('addEventModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('addEventModal').style.display = 'none';
+}
+
+function handleEventSubmit(event) {
+  event.preventDefault();
+  
+  const name = document.getElementById('eventName').value.trim();
+  const category = document.getElementById('eventCategory').value;
+  
+  if (!name || !category) {
+    showNotification('Please fill all required fields', 'error');
+    return false;
+  }
+  
+  const newEvent = {
+    id: eventData.length + 1,
+    name: sanitizeInput(name),
+    category: category,
+    date: new Date().toISOString().split('T')[0],
+    time: "14:00",
+    price: 0,
+    seats: 50,
+    seatsLeft: 50,
+    location: "TBD",
+    organizer: currentUser.name,
+    description: "New event description",
+    type: "free"
+  };
+  
+  eventData.unshift(newEvent);
+  closeModal();
+  showNotification('Event created successfully!', 'success');
+  
+  if (currentUser.role === 'user') {
+    renderEvents();
+  }
+  
+  return false;
+}
+
+// Notification System
+function showNotification(message, type = 'info') {
+  const icon = {
+    success: 'check-circle',
+    error: 'exclamation-circle',
+    info: 'info-circle'
+  }[type] || 'info-circle';
+  
+  const notification = document.createElement('div');
+  notification.className = 'notification';
+  notification.innerHTML = `
+    <i class="fas fa-${icon}"></i>
+    <span>${sanitizeInput(message)}</span>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.classList.add('hide');
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// User Menu
+function toggleUserMenu() {
+  const menu = document.createElement('div');
+  menu.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 8%;
+    background: white;
+    border-radius: 15px;
+    padding: 15px 0;
+    min-width: 200px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    z-index: 1000;
+  `;
+  
+  menu.innerHTML = `
+    <div style="padding: 15px; border-bottom: 1px solid var(--border-color);">
+      <div style="font-weight: 600;">${currentUser?.name || 'User'}</div>
+      <div style="font-size: 0.9rem; color: var(--text-light);">${currentUser?.email || ''}</div>
+    </div>
+    <div style="padding: 10px 0;">
+      <div onclick="showNotification('Profile page would open')" style="padding: 12px 20px; cursor: pointer; transition: all 0.3s ease;">
+        <i class="fas fa-user" style="margin-right: 10px;"></i> Profile
+      </div>
+      <div onclick="showNotification('Settings page would open')" style="padding: 12px 20px; cursor: pointer; transition: all 0.3s ease;">
+        <i class="fas fa-cog" style="margin-right: 10px;"></i> Settings
+      </div>
+    </div>
+    <div style="padding: 10px 0; border-top: 1px solid var(--border-color);">
+      <div onclick="logout()" style="padding: 12px 20px; cursor: pointer; color: #e53e3e; transition: all 0.3s ease;">
+        <i class="fas fa-sign-out-alt" style="margin-right: 10px;"></i> Logout
+      </div>
+    </div>
+  `;
+  
+  // Add hover effects
+  const style = document.createElement('style');
+  style.textContent = `
+    [onclick]:hover {
+      background: var(--primary-light);
+      color: var(--accent-purple);
+    }
+  `;
+  document.head.appendChild(style);
+  
+  document.body.appendChild(menu);
+  
+  // Close menu on click outside
+  setTimeout(() => {
+    const closeMenu = (e) => {
+      if (!menu.contains(e.target) && !e.target.closest('.user-profile')) {
+        menu.remove();
+        document.removeEventListener('click', closeMenu);
+      }
+    };
+    document.addEventListener('click', closeMenu);
+  });
+}
+
+function toggleOrganizerMenu() {
+  toggleUserMenu(); // Reuse same function for now
+}
+
+// View Event Details
+function viewEventDetails(eventId) {
+  const event = eventData.find(e => e.id === eventId);
+  if (!event) return;
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-info-circle"></i> Event Details</h3>
+        <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+      </div>
+      <div>
+        <h2 style="margin-bottom: 20px;">${sanitizeInput(event.name)}</h2>
+        <p><strong>Date:</strong> ${formatDate(event.date)} at ${event.time}</p>
+        <p><strong>Location:</strong> ${sanitizeInput(event.location)}</p>
+        <p><strong>Category:</strong> ${getCategoryName(event.category)}</p>
+        <p><strong>Price:</strong> ${event.price > 0 ? `₹${event.price}` : 'Free'}</p>
+        <p><strong>Seats Available:</strong> ${event.seatsLeft}/${event.seats}</p>
+        <p><strong>Description:</strong> ${sanitizeInput(event.description)}</p>
+        <div style="margin-top: 30px;">
+          <button class="btn btn-primary" onclick="registerForEvent(${event.id}); this.closest('.modal').remove()">
+            <i class="fas fa-${event.type === 'free' ? 'user-plus' : 'ticket-alt'}"></i>
+            ${event.type === 'free' ? 'Register Now' : 'Buy Ticket'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+</script>
+</body>
+</html>
